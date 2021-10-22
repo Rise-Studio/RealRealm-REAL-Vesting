@@ -39,9 +39,9 @@ contract REALTeamClaim is Ownable, ReentrancyGuard {
     isInit = true;
   }
 
-  function setTgeTime(uint256 _tge) external onlyOwner {
+  function setTime(uint256 _time) external onlyOwner {
     require(stage == 0, "Can not setup tge");
-    startTime = _tge + FULL_LOCK;
+    startTime = _time + FULL_LOCK;
     endTime = startTime + VESTING_DURATION;
 
     stage = 1;

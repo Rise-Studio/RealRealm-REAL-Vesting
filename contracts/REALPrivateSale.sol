@@ -51,13 +51,12 @@ contract REALSeedSale is Ownable, ReentrancyGuard {
     isInit = true;
   }
 
-  function setTgeTime(uint256 _tge) external canSetup onlyOwner {
-    startTime = _tge + TGE_CLIFF;
+  function setTime(uint256 _time) external canSetup onlyOwner {
+    startTime = _time + TGE_CLIFF;
     endTime = startTime + VESTING_DURATION;
 
     stage = 1;
 
-    //transfer 6% for whilelists;
     for (uint256 i = 0; i < whilelists.length; i++) {
       uint256 realAmount = (locks[whilelists[i]] * TGE_RELEASE) / 100;
       locks[whilelists[i]] -= realAmount;
