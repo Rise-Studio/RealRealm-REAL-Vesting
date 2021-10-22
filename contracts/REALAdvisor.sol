@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract REALTeamClaim is Ownable, ReentrancyGuard {
+contract REALAdvisorClaim is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
   ERC20 public REAL;
 
