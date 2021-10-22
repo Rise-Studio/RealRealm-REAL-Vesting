@@ -158,7 +158,7 @@ contract REALSeedSale is Ownable, ReentrancyGuard {
     address _to,
     uint256 _amount
   ) external onlyOwner {
-    require(_token != address(REAL), "Token invalid");
+    // require(_token != address(REAL), "Token invalid");
     ERC20(_token).transfer(_to, _amount);
   }
 }
