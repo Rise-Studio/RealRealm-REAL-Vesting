@@ -74,7 +74,7 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
     require(_users.length == _balance.length, "Invalid input");
     for (uint256 i = 0; i < _users.length; i++) {
       //calculate
-      uint256 realAmount = _balance[i] / REAL_PRICE;
+      uint256 realAmount = (_balance[i] * 10**tokenBuy.decimals()) / REAL_PRICE;
       // boughts[_users[i]] += _balance[i];
       locks[_users[i]] += realAmount;
       whilelists.push(_users[i]);
