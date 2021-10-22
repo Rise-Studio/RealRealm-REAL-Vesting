@@ -16,7 +16,7 @@ contract REALPrivateSale is Ownable, ReentrancyGuard {
   uint256 public TGE_RELEASE = 25;
   uint256 public TGE_CLIFF = 0; // 0 months
   uint256 public VESTING_DURATION = 86400 * 30 * 3; // 3 months
-  uint256 public REAL_PRICE = 12500000000000000; // 1 REAL = 0.01 USTD
+  uint256 public REAL_PRICE = 12500000000000000; // 1 REAL = 0.0125 USTD
   uint256 public TOTAL_ALLOCATION = 12000000000000000000000000; // 12.000.000 token REAL
 
   uint256 public startTime;
