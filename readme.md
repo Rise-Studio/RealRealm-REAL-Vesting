@@ -20,6 +20,7 @@ Các thuộc tính cơ bản của contract
 ## Bước 1: Sử dụng hàm initial(ERC20 real) {}
 
 - real: Address token REAL.
+- tokenBuy: Address token dùng để mua REAL
 
 ## Bước 2: Set user whitelist - sử dụng hàm setWhilelist(address[] calldata users, uint256[] calldata balance) {}
 
@@ -27,7 +28,7 @@ Các thuộc tính cơ bản của contract
 - balance: Array balance của user tham gia.
 - Length của array users và balance phải bằng nhau.
 
-vd: [addressUser1, addressUser2, addressUser3] - [1000000000000000000000 (Số lượng USDT * decimals user1 mua - 1000 USDT), 2000000000000000000000, 3000000000000000000000]
+vd: [addressUser1, addressUser2, addressUser3] - [1000, 2000, 3000]
 
 - Mỗi index trong array users và balance phải match với nhau
 
@@ -40,3 +41,11 @@ vd: [addressUser1, addressUser2, addressUser3] - [1000000000000000000000 (Số l
 
 - startTime = time + TGE_RELEASE
 - endTime = startTime + VESTING_DURATION
+
+## Function hỗ trợ khác:
+
+- Funcion setBalanceUser(address \_user, uint256 \_newBalance) dùng để thay đổi số dư của User
+
+## Web hỗ trợ
+
+- Timestamp - https://www.epochconverter.com/
