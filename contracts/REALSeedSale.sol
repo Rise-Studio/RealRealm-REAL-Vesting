@@ -17,9 +17,8 @@ contract REALSeedSale is Ownable, ReentrancyGuard {
   uint256 public TGE_RELEASE = 75;
   uint256 public TGE_CLIFF = 86400 * 30 * 2; // 2 months
   uint256 public VESTING_DURATION = 86400 * 30 * 12; // 12 months
-  uint256 public REAL_PRICE = 10000000000000000; // 1 REAL = 0.01 USTD
-  uint256 public TOTAL_ALLOCATION = 120000000000000000000000000; // 120.000.000 token REAL
-
+  uint256 public REAL_PRICE = 60000000000000000; // 0.006 USDT / REAL
+  uint256 public TOTAL_ALLOCATION = 30000000000000000000000000; // 30.000.000 token REAL
   uint256 public startTime;
   uint256 public endTime;
 
