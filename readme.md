@@ -20,7 +20,6 @@ Các thuộc tính cơ bản của contract
 ## Bước 1: Sử dụng hàm initial(ERC20 real) {}
 
 - real: Address token REAL.
-- tokenBuy: Address token dùng để mua REAL
 
 ## Bước 2: Set user whitelist - sử dụng hàm setWhilelist(address[] calldata users, uint256[] calldata balance) {}
 

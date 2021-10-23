@@ -12,7 +12,6 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
   bool public isInit;
 
   ERC20 public REAL;
-  ERC20 public tokenBuy;
 
   uint256 public TGE_RELEASE = 25;
   uint256 public TGE_CLIFF = 0; // 0 months
@@ -44,10 +43,9 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
     _;
   }
 
-  function initial(ERC20 _real, ERC20 _tokenBuy) external onlyOwner {
+  function initial(ERC20 _real) external onlyOwner {
     require(isInit != true, "Init before!");
     REAL = ERC20(_real);
-    tokenBuy = ERC20(_tokenBuy);
     stage = 0;
 
     isInit = true;
@@ -74,7 +72,7 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
     require(_users.length == _balance.length, "Invalid input");
     for (uint256 i = 0; i < _users.length; i++) {
       //calculate
-      uint256 realAmount = (_balance[i] * 10**tokenBuy.decimals()) / REAL_PRICE;
+      uint256 realAmount = (_balance[i] * 10**18) / REAL_PRICE;
       // boughts[_users[i]] += _balance[i];
       locks[_users[i]] += realAmount;
       whilelists.push(_users[i]);
@@ -86,7 +84,7 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
     onlyOwner
   {
     require(locks[_user] > 0, "This new user");
-    uint256 realAmount = (_newBalance * 10**tokenBuy.decimals()) / REAL_PRICE;
+    uint256 realAmount = (_newBalance * 10**18) / REAL_PRICE;
     locks[_user] = realAmount;
   }
 
