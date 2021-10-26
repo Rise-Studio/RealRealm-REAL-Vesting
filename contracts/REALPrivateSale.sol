@@ -152,8 +152,8 @@ contract Ownable {
 
 
 /*****************************************************************************
- * @title TokenTimelock
- * @dev TokenTimelock is a token holder contract that will allow a
+ * @title REALPrivateSale
+ * @dev REALPrivateSale is a token holder contract that will allow a
  * beneficiary to extract the tokens after a given release time.
  */
 contract REALPrivateSale is Ownable {
