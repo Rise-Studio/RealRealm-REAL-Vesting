@@ -178,7 +178,7 @@ contract SeedTokenTimelock is Ownable {
      * Clain UPFRONT_AMOUNT 
      */
     function claimUpfront() public onlyOwner {
-        require(IERC20(REAL_TOKEN).balanceOf(address(this)).sub(AMOUNT_PER_RELEASE) >= 0, "TokenTimelock: no tokens to release");
+        require(IERC20(REAL_TOKEN).balanceOf(address(this)).sub(UPFRONT_AMOUNT) >= 0, "TokenTimelock: no tokens to release");
         lockToken = lockToken.sub(UPFRONT_AMOUNT);
         IERC20(REAL_TOKEN).transfer(owner(), UPFRONT_AMOUNT); 
     }
