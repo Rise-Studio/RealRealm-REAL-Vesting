@@ -162,11 +162,8 @@ contract SeedTokenTimelock is Ownable {
     
     uint256 constant public UPFRONT_AMOUNT = 600000 *10**18;
     uint256 constant public AMOUNT_PER_RELEASE = 783333 *10**18;
-    // uint256 constant public 2MONTH = 5184000; // 60days
-    // uint256 constant public PERIOD = 2592000; // 30days
-    uint256 constant public PERIOD = 60; // Testing only 5minute
-    // uint256 constant public START_TIME = 1637971199 + 5184000; // Time begin unlock linearly 2 month from : 23:59:59 GMT 26/11/2021
-    uint256 constant public START_TIME = 1635245492 + 2*60; // Test will be for now + 2minutes
+    uint256 constant public PERIOD = 2592000; // 30days
+    uint256 constant public START_TIME = 1637971199 + 5184000; // Time begin unlock linearly 2 month from : 23:59:59 GMT 26/11/2021
     address constant public REAL_TOKEN = 0x5c6499380d0dfB76C6DE990a3A2EC45a4749920E;
 
     uint256 public lockToken = 10000000 * 10**18;
@@ -186,7 +183,6 @@ contract SeedTokenTimelock is Ownable {
         IERC20(REAL_TOKEN).transfer(owner(), UPFRONT_AMOUNT); 
     }
     
-
     /**
      * @notice Transfers tokens held by timelock to beneficiary.
      */
