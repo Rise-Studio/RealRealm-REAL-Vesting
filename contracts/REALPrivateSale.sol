@@ -99,6 +99,12 @@ contract REALPrivateSale is Ownable {
     function getCurrentTime() public view returns(uint256) {
         return block.timestamp;
     }
+
+    function getUpfrontAmount(address _add) external view returns(uint256) {
+        uint256 upfrontAmount = lockTokens[_add].amountLock.mul(TGE_RELEASE).div(1000);
+        return upfrontAmount;
+    }
+    
     
     function getTimeReleaseNext(address addr) external view returns(uint256) {
         return lockTokens[addr].nextRelease;
