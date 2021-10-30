@@ -11,8 +11,8 @@ contract REALPrivateSale is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
     
-    uint256 public TGE_RELEASE = 75; // Div 100
-    uint256 constant public PERIOD = 2592000; // 30days
+    uint256 public TGE_RELEASE = 75; // Initial release 7.5% of total amount
+    uint256 constant public PERIOD = 30 days; // 30days
     uint256 public START_TIME = 1643155199; // Time begin unlock linearly 2 month from : 23:59:59 GMT 26/11/2021
     uint256 public totalBeneficiaries;
     ERC20 public REAL_TOKEN;
@@ -24,14 +24,15 @@ contract REALPrivateSale is Ownable {
         uint256 countReleases;
     }
     
-    mapping(address => LockInfo) internal lockTokens; // REAL
+    mapping(address => LockInfo) public lockTokens; // REAL
     mapping (uint256 => address) public listBeneficiaries;
     
     
     event ClaimToken(address addr, uint256 amount);
     
-    constructor(address _realToken) {
+    constructor(address _realToken, uint256 _startTime) {
         REAL_TOKEN = ERC20(_realToken);
+        START_TIME = _startTime;
     }
     
     // only owner or added beneficiaries can release the vesting amount
