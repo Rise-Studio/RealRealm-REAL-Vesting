@@ -6,13 +6,13 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
-contract REALPrivateSale is Ownable {
+contract REALSeed is Ownable {
     
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
     
-    uint256 public TGE_RELEASE = 75; // Initial release 7.5% of total amount
-    uint256 constant public PERIOD = 30 days; // 30days
+    uint256 public TGE_RELEASE = 60; // Initial release 6% of total amount
+    uint256 constant public PERIOD = 30 days;
     uint256 public START_TIME = 1643155199; // Time begin unlock linearly 2 month from : 23:59:59 GMT 26/11/2021
     uint256 public totalBeneficiaries;
     ERC20 public REAL_TOKEN;
@@ -44,10 +44,6 @@ contract REALPrivateSale is Ownable {
         _;
     }
     
-     /**
-     * @dev Add new beneficiary to vesting contract with some conditions.
-     *  _amount : Total amount include _upfrontAmount
-     */
     function addBeneficiary(address[] calldata _beneficiarys, uint256[] calldata _amounts) external onlyOwner {
         require (_beneficiarys.length == _amounts.length,"Input not correct");
         for(uint256 i=0; i <_beneficiarys.length; i++){
@@ -55,15 +51,9 @@ contract REALPrivateSale is Ownable {
             require(addr != address(0), "The beneficiary's address cannot be 0");
             require(_amounts[i] > 0, "Shares amount has to be greater than 0");
             require(lockTokens[addr].amountLock == 0, "The beneficiary has added to the vesting pool already");
+            lockTokens[addr].amountLock = _amounts[i];
             listBeneficiaries[totalBeneficiaries.add(i+1)] = addr;
-            uint256 upfrontAmount = _amounts[i].mul(TGE_RELEASE).div(1000);
-
-             // Transfer immediately if any upfront amount
-            if (upfrontAmount > 0) {
-                lockTokens[addr].amountLock = _amounts[i].sub(upfrontAmount);
-                REAL_TOKEN.safeTransfer(addr, upfrontAmount);
-            }
-            lockTokens[addr].nextRelease = START_TIME + PERIOD.mul(0);
+            lockTokens[addr].nextRelease = START_TIME;
         }
         totalBeneficiaries = totalBeneficiaries.add(_beneficiarys.length);
     }
@@ -88,9 +78,15 @@ contract REALPrivateSale is Ownable {
             return (0,0);
         }
 
+        uint256 upfrontAmount = 0;
+
+        if(lockTokens[add].amountClaimed == 0){
+            upfrontAmount = getUpfrontAmount(add);
+        }
+
         uint256 nextRelease = lockTokens[add].nextRelease;
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
-        uint256 amount = lockTokens[add].amountLock.div(12).mul(clift);
+        uint256 amount = upfrontAmount.add(lockTokens[add].amountLock.sub(getUpfrontAmount(add)).div(12).mul(clift));
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
             amount = lockTokens[add].amountLock.sub(lockTokens[add].amountClaimed);
         }
@@ -101,11 +97,11 @@ contract REALPrivateSale is Ownable {
         return block.timestamp;
     }
 
-    function getUpfrontAmount(address _add) external view returns(uint256) {
+    function getUpfrontAmount(address _add) internal view returns(uint256) {
         uint256 upfrontAmount = lockTokens[_add].amountLock.mul(TGE_RELEASE).div(1000);
         return upfrontAmount;
     }
-    
+
     
     function getTimeReleaseNext(address addr) external view returns(uint256) {
         return lockTokens[addr].nextRelease;
