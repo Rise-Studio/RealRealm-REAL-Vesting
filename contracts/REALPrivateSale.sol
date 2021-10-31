@@ -11,7 +11,7 @@ contract REALPrivateSale is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
     
-    uint256 public TGE_RELEASE = 75; // Initial release 7.5% of total amount
+    uint256 public TGE_RELEASE = 75; // Div 1000
     uint256 constant public PERIOD = 30 days; // 30days
     uint256 public START_TIME = 1643155199; // Time begin unlock linearly 2 month from : 23:59:59 GMT 26/11/2021
     uint256 public totalBeneficiaries;
@@ -56,11 +56,12 @@ contract REALPrivateSale is Ownable {
             require(_amounts[i] > 0, "Shares amount has to be greater than 0");
             require(lockTokens[addr].amountLock == 0, "The beneficiary has added to the vesting pool already");
             listBeneficiaries[totalBeneficiaries.add(i+1)] = addr;
+            lockTokens[addr].amountLock = _amounts[i];
             uint256 upfrontAmount = _amounts[i].mul(TGE_RELEASE).div(1000);
 
              // Transfer immediately if any upfront amount
             if (upfrontAmount > 0) {
-                lockTokens[addr].amountLock = _amounts[i].sub(upfrontAmount);
+                lockTokens[addr].amountClaimed = _amounts[i].sub(upfrontAmount);
                 REAL_TOKEN.safeTransfer(addr, upfrontAmount);
             }
             lockTokens[addr].nextRelease = START_TIME + PERIOD.mul(0);
@@ -90,7 +91,7 @@ contract REALPrivateSale is Ownable {
 
         uint256 nextRelease = lockTokens[add].nextRelease;
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
-        uint256 amount = lockTokens[add].amountLock.div(12).mul(clift);
+        uint256 amount = lockTokens[add].amountLock.sub(_upfrontAmount(add)).div(12).mul(clift);
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
             amount = lockTokens[add].amountLock.sub(lockTokens[add].amountClaimed);
         }
@@ -101,7 +102,12 @@ contract REALPrivateSale is Ownable {
         return block.timestamp;
     }
 
-    function getUpfrontAmount(address _add) external view returns(uint256) {
+    function getUpfrontAmount(address add) external view returns(uint256) {
+        return _upfrontAmount(add);
+    }
+    
+
+    function _upfrontAmount(address _add) internal view returns(uint256) {
         uint256 upfrontAmount = lockTokens[_add].amountLock.mul(TGE_RELEASE).div(1000);
         return upfrontAmount;
     }
