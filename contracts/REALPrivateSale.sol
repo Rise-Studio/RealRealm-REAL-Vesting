@@ -61,7 +61,7 @@ contract REALPrivateSale is Ownable {
 
              // Transfer immediately if any upfront amount
             if (upfrontAmount > 0) {
-                lockTokens[addr].amountClaimed = _amounts[i].sub(upfrontAmount);
+                lockTokens[addr].amountClaimed = upfrontAmount;
                 REAL_TOKEN.safeTransfer(addr, upfrontAmount);
             }
             lockTokens[addr].nextRelease = START_TIME + PERIOD.mul(0);
@@ -85,11 +85,10 @@ contract REALPrivateSale is Ownable {
     }
     
     function _tokenCanClaim(address add) internal view returns(uint256, uint256) {
-        if(lockTokens[add].amountLock == lockTokens[add].amountClaimed){
+        uint256 nextRelease = lockTokens[add].nextRelease;
+        if(lockTokens[add].amountLock == lockTokens[add].amountClaimed || block.timestamp < nextRelease){
             return (0,0);
         }
-
-        uint256 nextRelease = lockTokens[add].nextRelease;
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
         uint256 amount = lockTokens[add].amountLock.sub(_upfrontAmount(add)).div(12).mul(clift);
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
@@ -130,12 +129,7 @@ contract REALPrivateSale is Ownable {
     function getReamingToken(address addr) external view returns(uint256) {
          return lockTokens[addr].amountLock.sub(lockTokens[addr].amountClaimed);
     }
-    
-    
-    function getAmountPerRelease(address addr) external view returns(uint256) {
-        return lockTokens[addr].amountLock.div(12);
-    }
-    
+        
     function getBalance() public view returns (uint256) {
         return REAL_TOKEN.balanceOf(address(this));
     }

@@ -85,6 +85,9 @@ contract REALSeed is Ownable {
         }
 
         uint256 nextRelease = lockTokens[add].nextRelease;
+        if(block.timestamp < nextRelease){
+            return (upfrontAmount, 0);
+        }
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
         uint256 amount = upfrontAmount.add(lockTokens[add].amountLock.sub(getUpfrontAmount(add)).div(12).mul(clift));
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
@@ -119,11 +122,6 @@ contract REALSeed is Ownable {
 
     function getReamingToken(address addr) external view returns(uint256) {
          return lockTokens[addr].amountLock.sub(lockTokens[addr].amountClaimed);
-    }
-    
-    
-    function getAmountPerRelease(address addr) external view returns(uint256) {
-        return lockTokens[addr].amountLock.div(12);
     }
     
     function getBalance() public view returns (uint256) {

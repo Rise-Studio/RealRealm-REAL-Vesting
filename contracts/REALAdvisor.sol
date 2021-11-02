@@ -73,11 +73,10 @@ contract REALAdvisor is Ownable {
     }
     
     function _tokenCanClaim(address add) internal view returns(uint256, uint256) {
-        if(lockTokens[add].amountLock == lockTokens[add].amountClaimed){
+        uint256 nextRelease = lockTokens[add].nextRelease;
+        if(lockTokens[add].amountLock == lockTokens[add].amountClaimed || block.timestamp < nextRelease){
             return (0,0);
         }
-
-        uint256 nextRelease = lockTokens[add].nextRelease;
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
         uint256 amount = lockTokens[add].amountLock.div(5).mul(clift);
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
@@ -108,12 +107,7 @@ contract REALAdvisor is Ownable {
     function getReamingToken(address addr) external view returns(uint256) {
          return lockTokens[addr].amountLock.sub(lockTokens[addr].amountClaimed);
     }
-    
-    
-    function getAmountPerRelease(address addr) external view returns(uint256) {
-        return lockTokens[addr].amountLock.div(12);
-    }
-    
+        
     function getBalance() public view returns (uint256) {
         return REAL_TOKEN.balanceOf(address(this));
     }
