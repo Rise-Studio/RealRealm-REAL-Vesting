@@ -81,7 +81,7 @@ contract REALSeed is Ownable {
         uint256 upfrontAmount = 0;
 
         if(lockTokens[add].amountClaimed == 0){
-            upfrontAmount = getUpfrontAmount(add);
+            upfrontAmount = _upfrontAmount(add);
         }
 
         uint256 nextRelease = lockTokens[add].nextRelease;
@@ -89,7 +89,7 @@ contract REALSeed is Ownable {
             return (upfrontAmount, 0);
         }
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
-        uint256 amount = upfrontAmount.add(lockTokens[add].amountLock.sub(getUpfrontAmount(add)).div(12).mul(clift));
+        uint256 amount = upfrontAmount.add(lockTokens[add].amountLock.sub(_upfrontAmount(add)).div(12).mul(clift));
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
             amount = lockTokens[add].amountLock.sub(lockTokens[add].amountClaimed);
         }
@@ -100,7 +100,7 @@ contract REALSeed is Ownable {
         return block.timestamp;
     }
 
-    function getUpfrontAmount(address _add) internal view returns(uint256) {
+    function _upfrontAmount(address _add) internal view returns(uint256) {
         uint256 upfrontAmount = lockTokens[_add].amountLock.mul(TGE_RELEASE).div(1000);
         return upfrontAmount;
     }
@@ -126,5 +126,14 @@ contract REALSeed is Ownable {
     
     function getBalance() public view returns (uint256) {
         return REAL_TOKEN.balanceOf(address(this));
+    }
+
+    function withdrawREAL(uint256 _amount) external onlyOwner {
+        uint256 balance = REAL_TOKEN.balanceOf(address(this));
+        if(balance >= _amount){
+            REAL_TOKEN.safeTransfer(owner(), _amount);
+        } else {
+            REAL_TOKEN.safeTransfer(owner(), balance);
+        }
     }
 }

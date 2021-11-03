@@ -111,4 +111,13 @@ contract REALAdvisor is Ownable {
     function getBalance() public view returns (uint256) {
         return REAL_TOKEN.balanceOf(address(this));
     }
+
+    function withdrawREAL(uint256 _amount) external onlyOwner {
+        uint256 balance = REAL_TOKEN.balanceOf(address(this));
+        if(balance >= _amount){
+            REAL_TOKEN.safeTransfer(owner(), _amount);
+        } else {
+            REAL_TOKEN.safeTransfer(owner(), balance);
+        }
+    }
 }

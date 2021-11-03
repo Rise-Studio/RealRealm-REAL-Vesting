@@ -57,13 +57,6 @@ contract REALPrivateSale is Ownable {
             require(lockTokens[addr].amountLock == 0, "The beneficiary has added to the vesting pool already");
             listBeneficiaries[totalBeneficiaries.add(i+1)] = addr;
             lockTokens[addr].amountLock = _amounts[i];
-            uint256 upfrontAmount = _amounts[i].mul(TGE_RELEASE).div(1000);
-
-             // Transfer immediately if any upfront amount
-            if (upfrontAmount > 0) {
-                lockTokens[addr].amountClaimed = upfrontAmount;
-                REAL_TOKEN.safeTransfer(addr, upfrontAmount);
-            }
             lockTokens[addr].nextRelease = START_TIME + PERIOD.mul(0);
         }
         totalBeneficiaries = totalBeneficiaries.add(_beneficiarys.length);
@@ -85,12 +78,21 @@ contract REALPrivateSale is Ownable {
     }
     
     function _tokenCanClaim(address add) internal view returns(uint256, uint256) {
-        uint256 nextRelease = lockTokens[add].nextRelease;
-        if(lockTokens[add].amountLock == lockTokens[add].amountClaimed || block.timestamp < nextRelease){
+        if(lockTokens[add].amountLock == lockTokens[add].amountClaimed){
             return (0,0);
         }
+        uint256 upfrontAmount = 0;
+
+        if(lockTokens[add].amountClaimed == 0){
+            upfrontAmount = _upfrontAmount(add);
+        }
+
+        uint256 nextRelease = lockTokens[add].nextRelease;
+        if(block.timestamp < nextRelease){
+            return (upfrontAmount, 0);
+        }
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
-        uint256 amount = lockTokens[add].amountLock.sub(_upfrontAmount(add)).div(12).mul(clift);
+        uint256 amount = upfrontAmount.add(lockTokens[add].amountLock.sub(_upfrontAmount(add)).div(12).mul(clift));
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
             amount = lockTokens[add].amountLock.sub(lockTokens[add].amountClaimed);
         }
@@ -100,11 +102,6 @@ contract REALPrivateSale is Ownable {
     function getCurrentTime() public view returns(uint256) {
         return block.timestamp;
     }
-
-    function getUpfrontAmount(address add) external view returns(uint256) {
-        return _upfrontAmount(add);
-    }
-    
 
     function _upfrontAmount(address _add) internal view returns(uint256) {
         uint256 upfrontAmount = lockTokens[_add].amountLock.mul(TGE_RELEASE).div(1000);
@@ -132,5 +129,14 @@ contract REALPrivateSale is Ownable {
         
     function getBalance() public view returns (uint256) {
         return REAL_TOKEN.balanceOf(address(this));
+    }
+
+    function withdrawREAL(uint256 _amount) external onlyOwner {
+        uint256 balance = REAL_TOKEN.balanceOf(address(this));
+        if(balance >= _amount){
+            REAL_TOKEN.safeTransfer(owner(), _amount);
+        } else {
+            REAL_TOKEN.safeTransfer(owner(), balance);
+        }
     }
 }
