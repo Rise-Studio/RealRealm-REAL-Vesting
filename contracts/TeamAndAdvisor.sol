@@ -6,13 +6,13 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
-contract REALAdvisor is Ownable {
+contract REALTeamAndAdvisor is Ownable {
     
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
     
     uint256 constant public PERIOD = 90 days;
-    uint256 public START_TIME = 1643155199; // Time begin unlock linearly 2 month from : 23:59:59 GMT 26/11/2021
+    uint256 public START_TIME = 1643155199; // Time begin unlock linearly 2 month from : 23:59:59 GMT 23/11/2021
     uint256 public totalBeneficiaries;
     ERC20 public REAL_TOKEN;
 
