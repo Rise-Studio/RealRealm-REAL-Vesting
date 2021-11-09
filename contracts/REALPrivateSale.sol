@@ -72,7 +72,6 @@ contract REALPrivateSale is Ownable, ReentrancyGuard {
      * @notice Transfers tokens held by timelock to beneficiary.
      */
     function claim() public onlyBeneficiaries nonReentrant {
-        require(block.timestamp >= START_TIME + PERIOD.mul(lockTokens[msg.sender].countReleases), "TokenTimelock: current time is before release time");
         (uint256 amount, uint256 clift) = _tokenCanClaim(msg.sender);
         require(amount > 0, "Token Lock: Do not have any token can unlock ");
        
