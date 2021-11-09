@@ -5,15 +5,17 @@ import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
-contract REALAdvisor is Ownable {
+contract REALAdvisor is Ownable, ReentrancyGuard {
     
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
     
     uint256 constant public PERIOD = 90 days;
-    uint256 public START_TIME = 1643155199; // Time begin unlock linearly 2 month from : 23:59:59 GMT 26/11/2021
+    uint256 public START_TIME;
     uint256 public totalBeneficiaries;
+    address public ownerToken;
     ERC20 public REAL_TOKEN;
 
     struct LockInfo {
@@ -29,9 +31,10 @@ contract REALAdvisor is Ownable {
     
     event ClaimToken(address addr, uint256 amount);
     
-    constructor(address _realToken, uint256 _startTime) {
+    constructor(address _realToken, uint256 _startTime, address _ownerToken) {
         REAL_TOKEN = ERC20(_realToken);
         START_TIME = _startTime;
+        ownerToken = _ownerToken;
     }
     
     // only owner or added beneficiaries can release the vesting amount
@@ -45,6 +48,7 @@ contract REALAdvisor is Ownable {
     
     function addBeneficiary(address[] calldata _beneficiarys, uint256[] calldata _amounts) external onlyOwner {
         require (_beneficiarys.length == _amounts.length,"Input not correct");
+        uint256 totalAmount;
         for(uint256 i=0; i <_beneficiarys.length; i++){
             address addr = _beneficiarys[i];
             require(addr != address(0), "The beneficiary's address cannot be 0");
@@ -52,14 +56,17 @@ contract REALAdvisor is Ownable {
             require(lockTokens[addr].amountLock == 0, "The beneficiary has added to the vesting pool already");
             lockTokens[addr].amountLock = _amounts[i];
             listBeneficiaries[totalBeneficiaries.add(i+1)] = addr;
-            lockTokens[addr].nextRelease = START_TIME + PERIOD.mul(0);
+            lockTokens[addr].nextRelease = START_TIME;
+            totalAmount = totalAmount.add(_amounts[i]);
         }
+        require(REAL_TOKEN.allowance(ownerToken, address(this)) >= totalAmount,"Can not add more beneficiary");
+        REAL_TOKEN.safeTransferFrom(ownerToken, address(this), totalAmount);
         totalBeneficiaries = totalBeneficiaries.add(_beneficiarys.length);
     }
     /**
      * @notice Transfers tokens held by timelock to beneficiary.
      */
-    function claim() public onlyBeneficiaries {
+    function claim() public onlyBeneficiaries nonReentrant {
         require(block.timestamp >= START_TIME + PERIOD.mul(lockTokens[msg.sender].countReleases), "TokenTimelock: current time is before release time");
         (uint256 amount, uint256 clift) = _tokenCanClaim(msg.sender);
         require(amount > 0, "Token Lock: Do not have any token can unlock ");
@@ -77,12 +84,13 @@ contract REALAdvisor is Ownable {
         if(lockTokens[add].amountLock == lockTokens[add].amountClaimed || block.timestamp < nextRelease){
             return (0,0);
         }
-        uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
-        uint256 amount = lockTokens[add].amountLock.div(5).mul(clift);
+        uint256 cliff = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
+        uint256 amountEachCliff = lockTokens[add].amountLock.div(5);
+        uint256 amount = amountEachCliff.mul(cliff);
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
             amount = lockTokens[add].amountLock.sub(lockTokens[add].amountClaimed);
         }
-        return (amount, clift);
+        return (amount, cliff);
     }
     
     function getCurrentTime() public view returns(uint256) {
@@ -110,14 +118,5 @@ contract REALAdvisor is Ownable {
         
     function getBalance() public view returns (uint256) {
         return REAL_TOKEN.balanceOf(address(this));
-    }
-
-    function withdrawREAL(uint256 _amount) external onlyOwner {
-        uint256 balance = REAL_TOKEN.balanceOf(address(this));
-        if(balance >= _amount){
-            REAL_TOKEN.safeTransfer(owner(), _amount);
-        } else {
-            REAL_TOKEN.safeTransfer(owner(), balance);
-        }
     }
 }
