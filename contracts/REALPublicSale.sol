@@ -27,7 +27,7 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
     
     mapping(address => LockInfo) public lockTokens; // REAL
     mapping (uint256 => address) public listBeneficiaries;
-    
+    mapping(address => bool) internal exists;
     
     event ClaimToken(address addr, uint256 amount);
     
@@ -53,12 +53,14 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
         require (_beneficiarys.length == _amounts.length,"Input not correct");
         for(uint256 i=0; i <_beneficiarys.length; i++){
             address addr = _beneficiarys[i];
+            require(!exists[addr],"address was exists");
             require(addr != address(0), "The beneficiary's address cannot be 0");
             require(_amounts[i] > 0, "Shares amount has to be greater than 0");
             require(lockTokens[addr].amountLock == 0, "The beneficiary has added to the vesting pool already");
             listBeneficiaries[totalBeneficiaries.add(i+1)] = addr;
             lockTokens[addr].amountLock = _amounts[i];
             lockTokens[addr].nextRelease = START_TIME;
+            exists[addr] = true;
         }
         totalBeneficiaries = totalBeneficiaries.add(_beneficiarys.length);
     }

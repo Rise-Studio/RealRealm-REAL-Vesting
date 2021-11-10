@@ -28,7 +28,7 @@ contract REALSeed is Ownable, ReentrancyGuard {
     
     mapping(address => LockInfo) public lockTokens; // REAL
     mapping (uint256 => address) public listBeneficiaries;
-    
+    mapping(address => bool) internal exists;
     
     event ClaimToken(address addr, uint256 amount);
     
@@ -52,6 +52,7 @@ contract REALSeed is Ownable, ReentrancyGuard {
         uint256 totalAmount;
         for(uint256 i=0; i <_beneficiarys.length; i++){
             address addr = _beneficiarys[i];
+            require(!exists[addr],"address was exists");
             require(addr != address(0), "The beneficiary's address cannot be 0");
             require(_amounts[i] > 0, "Shares amount has to be greater than 0");
             require(lockTokens[addr].amountLock == 0, "The beneficiary has added to the vesting pool already");
@@ -59,6 +60,7 @@ contract REALSeed is Ownable, ReentrancyGuard {
             listBeneficiaries[totalBeneficiaries.add(i+1)] = addr;
             lockTokens[addr].nextRelease = START_TIME;
             totalAmount = totalAmount.add(_amounts[i]);
+            exists[addr] = true;
         }
         require(REAL_TOKEN.allowance(ownerToken, address(this)) >= totalAmount,"Can not add more beneficiary");
         REAL_TOKEN.safeTransferFrom(ownerToken, address(this), totalAmount);
