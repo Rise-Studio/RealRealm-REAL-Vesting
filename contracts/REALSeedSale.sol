@@ -97,8 +97,8 @@ contract REALSeed is Ownable, ReentrancyGuard {
             return (upfrontAmount, 0);
         }
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
-        uint256 amountEachCliff = lockTokens[add].amountLock.sub(_upfrontAmount(add)).div(12);
-        uint256 amount = upfrontAmount.add(amountEachCliff.mul(clift));
+        uint256 amountToken = lockTokens[add].amountLock.sub(_upfrontAmount(add)).mul(clift).div(12);
+        uint256 amount = upfrontAmount.add(amountToken);
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
             amount = lockTokens[add].amountLock.sub(lockTokens[add].amountClaimed);
         }

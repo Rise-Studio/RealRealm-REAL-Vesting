@@ -86,8 +86,7 @@ contract REALTeamAndAdvisor is Ownable, ReentrancyGuard{
             return (0,0);
         }
         uint256 cliff = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
-        uint256 amountEachCliff = lockTokens[add].amountLock.div(5);
-        uint256 amount = amountEachCliff.mul(cliff);
+        uint256 amount = lockTokens[add].amountLock.mul(cliff).div(5);
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
             amount = lockTokens[add].amountLock.sub(lockTokens[add].amountClaimed);
         }

@@ -94,8 +94,8 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
             return (upfrontAmount, 0);
         }
         uint256 clift = block.timestamp.sub(nextRelease).div(PERIOD) + 1;
-        uint256 tgeEachMonth = lockTokens[add].amountLock.div(4);
-        uint256 amount = upfrontAmount.add(tgeEachMonth.mul(clift));
+        uint256 amountToken = lockTokens[add].amountLock.mul(clift).div(4);
+        uint256 amount = upfrontAmount.add(amountToken);
         if (lockTokens[add].amountClaimed.add(amount) >= lockTokens[add].amountLock) {
             amount = lockTokens[add].amountLock.sub(lockTokens[add].amountClaimed);
         }
