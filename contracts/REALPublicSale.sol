@@ -70,9 +70,13 @@ contract REALPublicSale is Ownable, ReentrancyGuard {
     function claim() public onlyBeneficiaries nonReentrant {
         (uint256 amount, uint256 clift) = _tokenCanClaim(msg.sender);
         require(amount > 0, "Token Lock: Do not have any token can unlock ");
-       
-        REAL_TOKEN.safeTransfer(msg.sender, amount);
-        lockTokens[msg.sender].amountClaimed += amount;
+        if(lockTokens[msg.sender].countReleases.add(clift) == 4){
+            REAL_TOKEN.safeTransfer(msg.sender, lockTokens[msg.sender].amountLock.sub(lockTokens[msg.sender].amountClaimed));
+            lockTokens[msg.sender].amountClaimed = lockTokens[msg.sender].amountLock;
+        } else {
+            REAL_TOKEN.safeTransfer(msg.sender, amount);
+            lockTokens[msg.sender].amountClaimed += amount;
+        }
         lockTokens[msg.sender].nextRelease += PERIOD.mul(clift);
         lockTokens[msg.sender].countReleases += clift;
 
